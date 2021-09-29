@@ -6,7 +6,8 @@ This doc assumes you understand the fundamentals of Terraform, Git, and pipeline
 
 ## TerraformTaskV1 vs. TerraformTaskV2
 
-I've run into an issue with TerraformTaskV1 on newer versions of Terraform. <https://github.com/microsoft/azure-pipelines-extensions/issues/942> provides insight to the issue. Essentially, "There's a new release (0.1.9) out now with a TerraformTaskV2 with support for the new configuration format. V1 should be used for Terraform <0.12 and V2 for later versions." The correct task to use is: 
+I've run into an issue with TerraformTaskV1 on newer versions of Terraform. <https://github.com/microsoft/azure-pipelines-extensions/issues/942> provides insight to the issue. Essentially, "There's a new release (0.1.9) out now with a TerraformTaskV2 with support for the new configuration format. V1 should be used for Terraform <0.12 and V2 for later versions." The correct task to use is:
+
 ```yaml
   - task: TerraformTaskV2@2
 ```
