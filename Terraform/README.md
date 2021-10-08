@@ -97,3 +97,31 @@ Here is the template file example for some JSON
     "somedata": "${ somedata }"
 }
 ```
+
+## Randomly generate password
+
+```bash
+provider "random" {
+}
+
+resource "random_password" "windows_admin_password" {
+  keepers = {
+    resource_group = azurerm_resource_group.spoke.name # used to ensure the password does not rotate or get removed unless these resources are removed
+  }
+  length      = 10
+  min_lower   = 1
+  min_upper   = 1
+  min_numeric = 1
+}
+
+# usage
+admin_password = random_password.windows_admin_password.result
+```
+
+## Importing Resources
+
+<https://www.terraform.io/docs/cli/commands/import.html>
+
+```bash
+terraform import module.foo.aws_instance.bar i-abcd1234
+```
