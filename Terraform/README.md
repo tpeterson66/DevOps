@@ -58,6 +58,25 @@ az storage container create --name terraformdemo --account-name terrastatestorag
 
 ## Reading in data from a remote state
 
+It can be helpful to pull data dynamically from another project's state file. This can be done a few different ways, the Terraform approved way would be using "remote state" as a data object. Here's an example of this configuration:
+
+```bash
+data "terraform_remote_state" "level0" {
+  backend = "azurerm"
+  config = {
+    resource_group_name  = ""
+    storage_account_name = ""
+    container_name       = ""
+    key                  = ""
+  }
+}
+
+output "something" {
+  description = "The name of the resource group in this project"
+  value = data.terraform_remote_state.core.outputs.rg_name
+}
+```
+
 ## Reading in JSON files
 
 This might be required when wanting to read in configuration files or state files.
