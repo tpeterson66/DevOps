@@ -1,4 +1,4 @@
-# Cetbot
+# Certbot
 
 Certbot uses LetsEncrypt to create a free 90 day SSL certificate which can be used for many purposes. This is not production worthy in most cases, but can be used in lower environments or while waiting for the SSL cert to be purchased.
 
