@@ -40,8 +40,9 @@
       docker_container:
         name: "{{ default_container_name }}"
         image: "{{ default_container_image }}"
-        published_ports: ["8080:8080"]
+        published_ports: ["9443:9443"]
         restart_policy: "unless-stopped"
+        volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
         # command: "{{ default_container_command }}"
         state: started
     #   with_sequence: count={{ create_containers }}
