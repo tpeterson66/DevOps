@@ -38,7 +38,7 @@
     # https://docs.ansible.com/ansible/2.9/modules/docker_container_module.html
     - name: Create Portainer
       docker_container:
-        name: "{{ default_container_name }}{{ item }}"
+        name: "{{ default_container_name }}"
         image: "{{ default_container_image }}"
         # command: "{{ default_container_command }}"
         state: present
