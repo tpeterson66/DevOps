@@ -40,6 +40,8 @@
       docker_container:
         name: "{{ default_container_name }}"
         image: "{{ default_container_image }}"
+        published_ports: ["8080:8080"]
+        restart_policy: "unless-stopped"
         # command: "{{ default_container_command }}"
-        state: present
+        state: started
     #   with_sequence: count={{ create_containers }}
