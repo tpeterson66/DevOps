@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../../Dashboard"
+		},
+		{
+			"path": "../../Apps"
+		},
+		{
+			"path": "../../InfrastructureAsCode"
 		}
 	],
 	"settings": {}
