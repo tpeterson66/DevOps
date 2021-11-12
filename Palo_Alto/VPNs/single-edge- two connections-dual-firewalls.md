@@ -32,7 +32,7 @@ Network -> Network Profiles -> IKE Crypto
 
 In these screenshots, we used the default settings, which may not meet the requirements of your deployment. It is recommended you create a new profile to match the requirements for your installation. It is important that settings match between peers.
 
-![ikecrypto](./images/ikecrypto.png)
+![ikecrypto](./images/ikecrypto.PNG)
 
 ### IPSec Crypto
 
@@ -40,7 +40,7 @@ Network -> Network Profiles -> IKE Crypto
 
 Similar to IKE Crypto, we used the default profile, however, a new profile for your deployment should be used. It is important that these settings match between peers.
 
-![ipseccrypto](./images/ipseccrypto.png)
+![ipseccrypto](./images/ipseccrypto.PNG)
 
 ### IKE Gateways
 
@@ -50,7 +50,7 @@ This configuration simulates the customer edge device having two Internet connec
 
 Here is a summary of the configuration for all 4 tunnels:
 
-![ipseccrypto](./images/ipseccrypto.png)
+![ipseccrypto](./images/ipseccrypto.PNG)
 
 Since Azure NATs the public IP to a private IP on the Palo Alto firewalls, it is required to configure the "Local Identification" and "Peer Identification" values using the real public IPs of the firewalls.
 
@@ -71,7 +71,7 @@ corp-to-azure-fw01-isp2 -> Azure 10.255.255.9/30 - Corp = 10.255.255.10/30
 corp-to-azure-fw02-isp2 -> Azure 10.255.255.13/30 - Corp = 10.255.255.14/30
 ```
 
-![tunnelsummary](./images/tunnelsummary.png)
+![tunnelsummary](./images/tunnelsummary.PNG)
 
 ### Zones
 
@@ -81,7 +81,7 @@ It is recommended that the VPN traffic be configured for their own zone to ensur
 
 The IPSec Tunnel configuration brings all of the configuration together. Here is a screenshot of the IPsec tunnel configurations for our setup.
 
-![ipsecsummary](./images/ipsecsummary.png)
+![ipsecsummary](./images/ipsecsummary.PNG)
 
 There is no reason to configure the Proxy IDs when using this deployment type, which is commonly called "route-based" vs. "policy-based". Our tunnels show green, however, they will be red until you configure BGP or send traffic over the tunnel.
 
@@ -97,25 +97,25 @@ Similar to the customer edge, the Ike Crypto, IPSec Crypto, Ike Gateways, tunnel
 
 The default profile can be used matching the settings of the customer edge device. If you created a custom profile, make sure the settings match.
 
-![ikecrypto](./images/ikecrypto.png)
+![ikecrypto](./images/ikecrypto.PNG)
 
 ### IPSec Crypto
 
 The default profile can be used matching the settings of the customer edge device. If you created a custom profile, make sure the settings match.
 
-![ipseccrypto](./images/ipseccrypto.png)
+![ipseccrypto](./images/ipseccrypto.PNG)
 
 ### IKE Gateways
 
 These are configured to match the customer edge tunnels - here is a screenshot of the Azure side.
 
-![az1ikegateways](./images/az1ikegateways.png)
+![az1ikegateways](./images/az1ikegateways.PNG)
 
 ### Tunnel Interfaces
 
 These are configured the same as the customer edge, just using the other IP address in the subnet.
 
-![az1tunnels](./images/az1tunnels.png)
+![az1tunnels](./images/az1tunnels.PNG)
 
 ### Zones
 
@@ -125,7 +125,7 @@ Similar to the edge device, the VPN traffic should be routed through a dedicated
 
 The IPSec Tunnels are configured the same as the edge site, just with the correct IP information.
 
-![az1ipsectunnels](./images/az1ipsectunnels.png)
+![az1ipsectunnels](./images/az1ipsectunnels.PNG)
 
 ## Azure Firewall 02 VPN Configuration
 
@@ -135,25 +135,25 @@ Similar to the customer edge, the Ike Crypto, IPSec Crypto, Ike Gateways, tunnel
 
 The default profile can be used matching the settings of the customer edge device. If you created a custom profile, make sure the settings match.
 
-![ikecrypto](./images/ikecrypto.png)
+![ikecrypto](./images/ikecrypto.PNG)
 
 ### IPSec Crypto
 
 The default profile can be used matching the settings of the customer edge device. If you created a custom profile, make sure the settings match.
 
-![ipseccrypto](./images/ipseccrypto.png)
+![ipseccrypto](./images/ipseccrypto.PNG)
 
 ### IKE Gateways
 
 These are configured to match the customer edge tunnels - here is a screenshot of the Azure side.
 
-![az1ikegateways](./images/az2ikegateways.png)
+![az1ikegateways](./images/az2ikegateways.PNG)
 
 ### Tunnel Interfaces
 
 These are configured the same as the customer edge, just using the other IP address in the subnet.
 
-![az1tunnels](./images/az2tunnels.png)
+![az1tunnels](./images/az2tunnels.PNG)
 
 ### Zones
 
@@ -163,7 +163,7 @@ Similar to the edge device, the VPN traffic should be routed through a dedicated
 
 The IPSec Tunnels are configured the same as the edge site, just with the correct IP information.
 
-![az1ipsectunnels](./images/az2ipsectunnels.png)
+![az1ipsectunnels](./images/az2ipsectunnels.PNG)
 
 ## Virtual Router Configuration - Customer Edge
 
@@ -177,13 +177,13 @@ We used the "default" router for the inside traffic, make sure you configure the
 
 You will need to define a BGP AS number in the range of 64512 – 65535, which is the private BGP range. Make sure you enable the BGP process and select the "install route" option. Authentication was not enabled during this example, however, should be used in production environments.
 
-![ceroutersummary](./images/ceroutersummary.png)
+![ceroutersummary](./images/ceroutersummary.PNG)
 
 ### BGP Peer Groups
 
 Peer Groups are used to connect the firewalls via BGP. Create a new BGP group and add the peers.
 
-![cebgpgroup](./images/cebgpgroup.png)
+![cebgpgroup](./images/cebgpgroup.PNG)
 
 ### Redistribution Profiles
 
@@ -191,7 +191,7 @@ Network -> Virtual Routers -> Redistribution Profile
 
 For this example, we're redistribute all static routes into BGP. Here is a simple redistribution profile. Make sure you choose the option to "Redist". This is not a one-size-fits all deployment. This may require some fine tuning to accomplish the desired results.
 
-![ceredistprofile](./images/ceredistprofile.png)
+![ceredistprofile](./images/ceredistprofile.PNG)
 
 
 
