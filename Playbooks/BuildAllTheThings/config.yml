@@ -21,11 +21,11 @@ infracost: true
 # Azure
 azcli: true
 
-# CLI tools
-fuck: true
-
 # SSL Certificates
 certbot: true
 
 # VPN
 tailscale: true
+
+# Pip Tools
+pip_tools: true

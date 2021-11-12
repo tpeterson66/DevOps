@@ -41,3 +41,6 @@
     - name: Setup Azure CLI.
       ansible.builtin.import_tasks: tasks/azcli.yml
       when: azcli == true
+    - name: Pip Tools.
+      ansible.builtin.import_tasks: tasks/pip_tools.yml
+      when: pip_tools == true
