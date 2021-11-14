@@ -173,26 +173,76 @@ This is the setup guide for BGP. This does not account for other requirements su
 
 Network -> Virtual Routers -> Default -> BGP
 
+BGP can be used in many ways to dynamically exchange routes between Azure and On-prem. BGP uses an elborate process to identify the best route to and from a remote AS and destination network. One option is to use the AS path, which is the first thing BGP evaluates when identifying the best route. The AS path can be configured on the route advertiser side to influence the recieving side to favor one or more routes over others. The second option is local prefrence, which is on the route reciever side and can also be used to influece the routing table. Some environments may require the configuration of both AS prepending and local pref to achieve the routing goals.
+
 We used the "default" router for the inside traffic, make sure you configure the same router as your tunnel interfaces. This does not cover the configuration of multiple BGP virtual routers.
 
 You will need to define a BGP AS number in the range of 64512 – 65535, which is the private BGP range. Make sure you enable the BGP process and select the "install route" option. Authentication was not enabled during this example, however, should be used in production environments.
+
+This configuration will use Local Pref to determine the correct routes and will configure local pref for all routes recieved from a peer. It is important to understand the tunnel usage order and ensure the configuration is set to achieve that configured order. For this example, we're using the following order.
+
+1. corp-to-azure-fw01-isp1 - Local pref 4000
+2. corp-to-azure-fw02-isp1 - Local pref 3000
+3. corp-to-azure-fw01-isp2 - Local pref 2000
+4. corp-to-azure-fw02-isp2 - Local pref 1000
 
 ![ceroutersummary](./images/ceroutersummary.PNG)
 
 ### BGP Peer Groups
 
-Peer Groups are used to connect the firewalls via BGP. Create a new BGP group and add the peers.
+Each connection will require its own peer group as the import/export profiles are associated with the peer group. The peer group is used to connect the two devices via BGP and each peer group will have a single peer, which will reflect the single connection back to/from Azure.
 
-![cebgpgroup](./images/cebgpgroup.PNG)
+Looking at the customer edge device first, we will need 4 peer groups all with a single peer configured. Here is a screenshot of the CE peer groups:
+
+![cepeergroup](./images/cepeergroup.PNG)
+
+#### Customer Edge BGP Profiles
+
+The import/export profiles can be used to influence the routing tables of the local and remote sides of the connection. It is important that both sides match and that the same path is used to and from the networks to ensure traffic is not lost or dropped. 
+
+If you want to use AS Prepending, then you will need to configure an export profile and associated that accordingly to your peer group.
+
+In this example, we're using Local Prefrence to control routes inbound to the local system. For that, we need a import profile. We will need a total of 4 import profiles on the customer edge device to accomodate the multiple tunnels and requirements. For this example, the new profile was named after the connection, this will help keep the configuration organized later. We also configured the match to look at the "from peers" of the peer on that connection. We then set the action to allow and set the local pref based on the values in the sections above.
+
+Here is a summary of the import profiles on the customer edge:
+
+![ceimportprofilesummary](./images/ceimportprofilesummary.PNG)
+
+Here is the match configuration. The match statements will need to be udpated to match the corresponding peers per import profile.
+
+![ceimportgeneral](./images/ceimportgeneral.PNG)
+
+![ceimportmatch](./images/ceimportmatch.PNG)
+
+![ceimportaction](./images/ceimportaction.PNG)
+
+When looking at the remote routing table, you will see the routes are incomplete. This is because the next-hop IP address is not set by the Palo firewalls. This will require an export profile to be configured per connection as well setting the next hop IP to match the local tunnel interface IP. This was not done for this example and the routing table screenshots will show a "?" for the route type.
 
 ### Redistribution Profiles
 
 Network -> Virtual Routers -> Redistribution Profile
 
-For this example, we're redistribute all static routes into BGP. Here is a simple redistribution profile. Make sure you choose the option to "Redist". This is not a one-size-fits all deployment. This may require some fine tuning to accomplish the desired results.
+For this example, we're redistribute all static routes into BGP. Here is a simple redistribution profile. Make sure you choose the option to "Redist". This is not a one-size-fits all deployment. This may require some fine tuning to accomplish the desired results. It is also recommended that you add a "no-redis" profile as well so you can quickly add the routes you do not want to redistribute - if required.
 
 ![ceredistprofile](./images/ceredistprofile.PNG)
 
+## Azure BGP Configuration
+
+On the Azure side, we just need to configure peer groups for the two ISPs for the two seperate tunnels. It is important to match the local pref settings as on prem to ensure traffic is returned over the same interface/tunnel. We will also need to configure iBGP. This is required as there is a load balancer in front of the Palo Firewalls and the non-active VPN peer will need to send its traffic to the other firewall to traverse the VPN.
+
+### Azure Firewall 01
+
+Enable BGP - check the option to install the routes "This is important and not checked by default".
+
+![azurebgpgeneral](./images/azurebgpgeneral.png)
+
+Next, configure the peer groups matching the configuration from the customer edge. We will also need a iBGP peer group, which will be used to peer to the other Azure Firewall.
+
+![azfw1peergroup](./images/azfw1peergroup.png)
+
+Here are the details on the iBGP peer group configuration; essentially, its the same as a eBGP peer, but uses the same AS number vs. the AS number of the customer edge. You also have to select the iBGP type as well.
+
+![azfw1ibgp](.\images\azfw1ibgp.png)
 
 
 
