@@ -242,7 +242,83 @@ Next, configure the peer groups matching the configuration from the customer edg
 
 Here are the details on the iBGP peer group configuration; essentially, its the same as a eBGP peer, but uses the same AS number vs. the AS number of the customer edge. You also have to select the iBGP type as well.
 
-![azfw1ibgp](.\images\azfw1ibgp.png)
+![azfw1ibgp](./images/azfw1ibgp.png)
+
+### Azure Firewall 01 Import Profiles
+
+The import profiles are used to set the local pref for the inbound routes. This is used to determine which route to take back to the custer edge device. It is important that we use the same order of preference for the routes to the customer edge as from the customer edge.
+
+Here we're using local pref to influence the routes. Here is an example of configuring import rules for Azure firewall 01.
+
+![az1importgeneral](./images/az1importgeneral.png)
+
+![az1importrulegeneral](./images/az1importrulegeneral.png)
+
+![az1importrulematch](./images/az1importrulematch.png)
+
+![az1importruleaction](./images/az1importruleaction.png)
+
+Make sure the local pref setting is configured to match the customer edge side of the tunnel as well. These steps need to be repeated for ISP2 or the other tunnel.
+
+## Azure Firewall 02
+
+Its the same configuration as firewall 01, just requires the IPs, tunnels, and local pref settings to be updated to reflect the correct configuration. Here are the screenshots of firewall 02.
+
+![az2bgpsummary](./images/az2bgpsummary.png)
+
+![az2bgppeergroup](./images/az2bgppeergroup.png)
+
+![az2bgpimport](./images/az2bgpimport.png)
 
 
+## Validation
 
+Once everything is configured, its time to validate the configuration and that everything is functional. This will also include some troubleshooting steps which can be used to ensure you didnt miss anything along the way.
+
+### Palo Alto Verification
+
+First, check that all IPSec tunnels are green or healthy. This is required before BGP can even peer correctly.
+
+![cevpnsummarygreen](./images/cevpnsummarygreen.png)
+
+Next, make sure all the BGP peers are established.
+
+![bgpruntimestats](./images/bgpruntimestats.png)
+
+![cebgpstatus](./images/cebgpstatus.png)
+
+If you see anything other than established, BGP has not successfully connected. Check the VPN tunnels to ensure there are encaps and decaps and that traffic is being routed across. Verify the addressing and the peer configuration. Remove things like authentication or DPD to verify.
+
+![cebgplocalrib](./images/cebgplocalrib.png)
+
+The local RIB can be used to see which routes the BGP process is learning. the Flag column will let you know which route was selected. Verify the route and peer match what you're expecting and that you have all the routes from all the peers as expected. In this example, the azure firewalls are advertising 10.0.1.0/24 and 10.172.192.0/24. We can see all of the routes from all four peers with the correct local pref values. 
+
+If you're not seeing routes, check the azure firewalls to make sure they're advertising the routes. Check the redistribtuion profile to ensure it is connected and configured. You can use the local RIB on the advertising firewall to ensure routes are being advertised by the process. If you know the routes are being advertised out, but your customer edge is not seeing them, check the import profile to make sure you're not dropping routes there.
+
+![ceroutingtable](./images/ceroutingtable.png)
+
+The routing table is what the firewall will actual use to send traffic. Check here to make sure you have a BGP route to the correct destinations, in this case, 10.0.1.0/24 and 10.172.192.0/24.
+
+## Appendix
+
+Here are a few items I changed from the orginal screenshots. Make sure the following configurations make it into your config's to resolve some potential problems.
+
+Instead of using an export profile to mark the next hop as the self router, I found the option to do so in the bgp peer config. I was hoping this would resolve the "?" in the routing table for the routes. It doesnt appear to cause any problems, but wanted to try and remove it. Here is a screenshot of my peer groups with the setting applied.
+
+![appendixpeergroupset](./images/appendixpeergroupset.png)
+
+It is also recommended that you use BFD - Bi-directional forwarding detection - for BGP on local networks. This can be used to accelerate the BGP timmers and detect outages and complete failover sooner. This was not enabled during the first sets of screenshots to eliminate it as a possible issue. Here is how that is configured.
+
+![ceadvancedbgp](./images/ceadvancedbgp.png)
+
+If you want to set the BFD settings per peer, you can also be done under the peer configuration.
+
+![peerbfd](./images/peerbfd.png)
+
+Authentication is also recommended to ensure unexpecter peers cannot change the routing table. The BGP auth profiles are configured at the BGP summary screen and then on each peer.
+
+![cdbgpauth](./images/cdbgpauth.png)
+
+Set the name of the profile and provide a password. Next, you will need to configue the peers to use the auth profile.
+
+![cebgpauthpeer](./images/cebgpauthpeer.png)
