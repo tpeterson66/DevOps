@@ -6,19 +6,69 @@ from os.path import isfile, join
 import glob
 import os
 
-print(os.walk("/Users/tompeterson/Documents/modules"))
+path = "/Users/tompeterson/Documents/modules"
+count = path.split("/")
+# print(len(count))
+# print(os.walk("/Users/tompeterson/Documents/modules"))
 
+with open("./modules.json") as f:
+  data = json.load(f)
 
-directories = os.walk("/Users/tompeterson/Documents/modules")
-for d in directories:
-    dir = d[0].split("/")
-    if len(dir) == 6:
-        print ("getting the modules in this folder: " + '/'.join(dir))
-        module_directories = os.walk('/'.join(dir))
-        for md  in module_directories:
-            print(md)
-    else:
-        print("not a root module folder: "+ '/'.join(dir))
+# d2 = data['Resource_group']["resource_group2"]
+# if "Resource_group" in data:
+#     print("found it!")
+# else:
+#     print("nope!")
+
+def root():
+    root_dirs = []
+    for root,dirs,files in os.walk(path):
+        if len(root.split("/")) == len(count) + 1:
+            root_dirs.append(root)
+    return root_dirs
+def getModules():
+    module_dirs = []
+    for root,dirs,files in os.walk(path):
+        if len(root.split("/")) == len(count) + 2:
+            module_dirs.append(root)
+    return module_dirs
+
+print(getModules())
+
+# Get all directories in folder
+# directories = os.walk("/Users/tompeterson/Documents/modules")
+for d in getModules():
+    print(d)
+    mds = d.split("/")
+    print("Working on module: " + mds[-1])
+    if mds[-2] in data:
+        if mds[-1] in data[mds[-2]]:
+            print("found module configuration for: " + mds[-2] + "/" + mds[-1])
+            print("Checking Hash")
+            print("current hash: " + checksumdir.dirhash(d))
+            existing = data[mds[-2]][mds[-1]]["hash"]
+            print("existing hash: " + existing )
+            if checksumdir.dirhash(d) == existing:
+                print("hashes match, no changes detected")
+            # print(d)
+            # print("Found: " + mds[-3] + "/" + mds[-2])
+            # print(d)
+            # print(checksumdir.dirhash(d))
+
+            # list_of_files = glob.glob("".join((md[0], "/*")))
+            # if len(list_of_files) == 0:
+            #     print("--- did not find any version info!")
+            #     new =  input("--- Is this a new module? yes/no ")
+            #     if new == 'yes':
+            #         print("new version")
+
+            #     break
+            # else:
+            #     # print(list_of_files)
+            #     latest_file = max(list_of_files, key=os.path.getctime)
+            #     print("found: " + latest_file)
+    # else: 
+    #     print("Skipping: " + md[0])
     
 
 
