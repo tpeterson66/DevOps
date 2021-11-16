@@ -33,7 +33,7 @@ def getModules():
     return module_dirs
 
 for d in getModules():
-    print(d)
+    # print(d)
     mds = d.split("/")
     print("Working on module: " + mds[-1])
     if mds[-2] in data:
@@ -51,10 +51,13 @@ for d in getModules():
                 if answer == "1":
                     print(f"{bcolors.OKCYAN}Updated the major version from: {str(existing['major'])} to: {str(int(existing['major'])+1)} {bcolors.ENDC}")
                     existing['major'] = int(existing['major'])+1
+                    existing['minor'] = 0
+                    existing['patch'] = 0
                     existing['hash'] = checksumdir.dirhash(d)
                 elif answer == "2":
                     print(f"{bcolors.OKCYAN}Updated the minor version from: {str(existing['minor'])} to: {str(int(existing['minor'])+1)} {bcolors.ENDC}")
                     existing['minor'] = int(existing['minor'])+1
+                    existing['patch'] = 0
                     existing['hash'] = checksumdir.dirhash(d)
                 elif answer == "3":
                     print(f"{bcolors.OKCYAN}Updated the patch version from: {str(existing['patch'])} to: {str(int(existing['patch'])+1)} {bcolors.ENDC}")
@@ -94,5 +97,5 @@ for d in getModules():
         else:
             print(f"{bcolors.WARNING}Could not read input, please provide either y, yes, n, no.{bcolors.ENDC}")   
 
-moduleFile = open("new.json", "w")
+moduleFile = open("modules.json", "w")
 moduleFile.write(json.dumps(data))
