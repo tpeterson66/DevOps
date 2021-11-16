@@ -6,6 +6,17 @@ from os.path import isfile, join
 import glob
 import os
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 path = "/Users/tompeterson/Documents/modules"
 count = path.split("/")
 # print(len(count))
@@ -14,18 +25,6 @@ count = path.split("/")
 with open("./modules.json") as f:
   data = json.load(f)
 
-# d2 = data['Resource_group']["resource_group2"]
-# if "Resource_group" in data:
-#     print("found it!")
-# else:
-#     print("nope!")
-
-def root():
-    root_dirs = []
-    for root,dirs,files in os.walk(path):
-        if len(root.split("/")) == len(count) + 1:
-            root_dirs.append(root)
-    return root_dirs
 def getModules():
     module_dirs = []
     for root,dirs,files in os.walk(path):
@@ -33,10 +32,6 @@ def getModules():
             module_dirs.append(root)
     return module_dirs
 
-print(getModules())
-
-# Get all directories in folder
-# directories = os.walk("/Users/tompeterson/Documents/modules")
 for d in getModules():
     print(d)
     mds = d.split("/")
@@ -46,61 +41,58 @@ for d in getModules():
             print("found module configuration for: " + mds[-2] + "/" + mds[-1])
             print("Checking Hash")
             print("current hash: " + checksumdir.dirhash(d))
-            existing = data[mds[-2]][mds[-1]]["hash"]
-            print("existing hash: " + existing )
-            if checksumdir.dirhash(d) == existing:
+            existing = data[mds[-2]][mds[-1]]
+            print("existing hash: " + existing["hash"] )
+            if checksumdir.dirhash(d) == existing["hash"]:
                 print("hashes match, no changes detected")
-            # print(d)
-            # print("Found: " + mds[-3] + "/" + mds[-2])
-            # print(d)
-            # print(checksumdir.dirhash(d))
+            else:
+                print(f"{bcolors.OKGREEN}{mds[-2]}/{mds[-1]} -> Changes detected! \n 1. update major version \n 2. update minor version \n 3. update patch version \n q. Quit{bcolors.ENDC}")
+                answer = input("> ")
+                if answer == "1":
+                    print(f"{bcolors.OKCYAN}Updated the major version from: {str(existing['major'])} to: {str(int(existing['major'])+1)} {bcolors.ENDC}")
+                    existing['major'] = int(existing['major'])+1
+                    existing['hash'] = checksumdir.dirhash(d)
+                elif answer == "2":
+                    print(f"{bcolors.OKCYAN}Updated the minor version from: {str(existing['minor'])} to: {str(int(existing['minor'])+1)} {bcolors.ENDC}")
+                    existing['minor'] = int(existing['minor'])+1
+                    existing['hash'] = checksumdir.dirhash(d)
+                elif answer == "3":
+                    print(f"{bcolors.OKCYAN}Updated the patch version from: {str(existing['patch'])} to: {str(int(existing['patch'])+1)} {bcolors.ENDC}")
+                    existing['patch'] = int(existing['patch'])+1
+                    existing['hash'] = checksumdir.dirhash(d)
+                elif answer == "q":
+                    print(f"{bcolors.OKBLUE} Skipping this update!{bcolors.ENDC}")
+                else:
+                    print(f"{bcolors.OKBLUE} WARNING: Could not read input, please provide either 1, 2, 3, or q{bcolors.ENDC}")
+        else: 
+            print("Could not find the module in the existing registry. \n Do you want to add it?")
+            answer = input("> ")
+            if answer == "y" or answer == "yes":
+                data[mds[-2]][mds[-1]] = {
+                    'hash': checksumdir.dirhash(d),
+                    'major':  0,
+                    'minor': 0,
+                    'patch': 1,
+                }
+            elif answer == "n" or answer == "no":
+                print(f"{bcolors.OKBLUE} Skipping this update!{bcolors.ENDC}")
+            else:
+                print(f"{bcolors.WARNING}Could not read input, please provide either y, yes, n, no.{bcolors.ENDC}")
+    else:
+        print("Could not find the module in the existing registry. \n Do you want to add it?")
+        answer = input(">")
+        if answer == "y" or answer == "yes":
+            data[mds[-2]] = {} # need to create root folder syntax as well.
+            data[mds[-2]][mds[-1]] = {
+                    'hash': checksumdir.dirhash(d),
+                    'major':  0,
+                    'minor': 0,
+                    'patch': 1,
+            }
+        elif answer == "n" or answer == "no":
+                print(f"{bcolors.OKBLUE} Skipping this update!{bcolors.ENDC}")
+        else:
+            print(f"{bcolors.WARNING}Could not read input, please provide either y, yes, n, no.{bcolors.ENDC}")   
 
-            # list_of_files = glob.glob("".join((md[0], "/*")))
-            # if len(list_of_files) == 0:
-            #     print("--- did not find any version info!")
-            #     new =  input("--- Is this a new module? yes/no ")
-            #     if new == 'yes':
-            #         print("new version")
-
-            #     break
-            # else:
-            #     # print(list_of_files)
-            #     latest_file = max(list_of_files, key=os.path.getctime)
-            #     print("found: " + latest_file)
-    # else: 
-    #     print("Skipping: " + md[0])
-    
-
-
-# [x[0] for x in os.walk("/Users/tompeterson/Documents/modules")]:
-#     print (x)
-
-
-
-# List all files in the dir
-# onlyfiles = [f for f in listdir("./.version") if isfile(join("./.version", f))]
-# print(onlyfiles)
-
-
-# list_of_files = glob.glob('../.version/*') # * means all if need specific format then *.csv
-# latest_file = max(list_of_files, key=os.path.getctime)
-# print("found: " + latest_file)
-
-# with open(latest_file) as f:
-#   data = json.load(f)
-
-
-# if checksumdir.dirhash("../Python") == data['hash']:
-#     print("no changes!")
-# else:
-#     print("changes???")
-#     print(checksumdir.dirhash("../Python"))
-
-# moduleFile = open("module.json", "w")
-
-# tfmodule = Module(0,0,1,checksumdir.dirhash("../Python"),"vnet")
-
-# moduleFile.write(json.dumps(tfmodule.__dict__))
-
-
-# print(tfmodule.hash)
+moduleFile = open("new.json", "w")
+moduleFile.write(json.dumps(data))
