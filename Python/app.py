@@ -32,6 +32,9 @@ def getModules():
             module_dirs.append(root)
     return module_dirs
 
+def hash(dir):
+    return checksumdir.dirhash(dir)
+
 for d in getModules():
     # print(d)
     mds = d.split("/")
@@ -40,10 +43,10 @@ for d in getModules():
         if mds[-1] in data[mds[-2]]:
             print("found module configuration for: " + mds[-2] + "/" + mds[-1])
             print("Checking Hash")
-            print("current hash: " + checksumdir.dirhash(d))
+            print("current hash: " + hash(d))
             existing = data[mds[-2]][mds[-1]]
             print("existing hash: " + existing["hash"] )
-            if checksumdir.dirhash(d) == existing["hash"]:
+            if hash(d) == existing["hash"]:
                 print("hashes match, no changes detected")
             else:
                 print(f"{bcolors.OKGREEN}{mds[-2]}/{mds[-1]} -> Changes detected! \n 1. update major version \n 2. update minor version \n 3. update patch version \n q. Quit{bcolors.ENDC}")
@@ -53,16 +56,16 @@ for d in getModules():
                     existing['major'] = int(existing['major'])+1
                     existing['minor'] = 0
                     existing['patch'] = 0
-                    existing['hash'] = checksumdir.dirhash(d)
+                    existing['hash'] = hash(d)
                 elif answer == "2":
                     print(f"{bcolors.OKCYAN}Updated the minor version from: {str(existing['minor'])} to: {str(int(existing['minor'])+1)} {bcolors.ENDC}")
                     existing['minor'] = int(existing['minor'])+1
                     existing['patch'] = 0
-                    existing['hash'] = checksumdir.dirhash(d)
+                    existing['hash'] = hash(d)
                 elif answer == "3":
                     print(f"{bcolors.OKCYAN}Updated the patch version from: {str(existing['patch'])} to: {str(int(existing['patch'])+1)} {bcolors.ENDC}")
                     existing['patch'] = int(existing['patch'])+1
-                    existing['hash'] = checksumdir.dirhash(d)
+                    existing['hash'] = hash(d)
                 elif answer == "q":
                     print(f"{bcolors.OKBLUE} Skipping this update!{bcolors.ENDC}")
                 else:
@@ -72,7 +75,7 @@ for d in getModules():
             answer = input("> ")
             if answer == "y" or answer == "yes":
                 data[mds[-2]][mds[-1]] = {
-                    'hash': checksumdir.dirhash(d),
+                    'hash': hash(d),
                     'major':  0,
                     'minor': 0,
                     'patch': 1,
@@ -87,7 +90,7 @@ for d in getModules():
         if answer == "y" or answer == "yes":
             data[mds[-2]] = {} # need to create root folder syntax as well.
             data[mds[-2]][mds[-1]] = {
-                    'hash': checksumdir.dirhash(d),
+                    'hash': hash(d),
                     'major':  0,
                     'minor': 0,
                     'patch': 1,
